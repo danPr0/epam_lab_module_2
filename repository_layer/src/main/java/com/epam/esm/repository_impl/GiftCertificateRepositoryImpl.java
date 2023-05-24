@@ -11,7 +11,6 @@ import org.springframework.jdbc.core.namedparam.NamedParameterJdbcTemplate;
 import org.springframework.jdbc.core.namedparam.SqlParameterSource;
 import org.springframework.stereotype.Repository;
 
-import javax.sql.DataSource;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.time.LocalDateTime;
@@ -33,10 +32,10 @@ public class GiftCertificateRepositoryImpl implements GiftCertificateRepository 
     private final NamedParameterJdbcTemplate namedParamJdbcTemplate;
 
     @Autowired
-    public GiftCertificateRepositoryImpl(DataSource dataSource) {
+    public GiftCertificateRepositoryImpl(JdbcTemplate jdbcTemplate, NamedParameterJdbcTemplate namedParamJdbcTemplate) {
 
-        jdbcTemplate           = new JdbcTemplate(dataSource);
-        namedParamJdbcTemplate = new NamedParameterJdbcTemplate(dataSource);
+        this.jdbcTemplate           = jdbcTemplate;
+        this.namedParamJdbcTemplate = namedParamJdbcTemplate;
     }
 
     @Override

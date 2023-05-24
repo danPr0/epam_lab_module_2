@@ -1,4 +1,5 @@
 rootProject.name = 'module2'
+
 include 'web_layer'
 include 'repository_layer'
 include 'service_layer'

@@ -1,11 +1,9 @@
 package com.epam.esm.controller;
 
 import com.epam.esm.dto.GiftCertificateDTO;
-import com.epam.esm.exception.ResourceAlreadyExists;
 import com.epam.esm.rest.AddGcRequest;
 import com.epam.esm.rest.UpdateGcRequest;
 import com.epam.esm.service.GiftCertificateService;
-import com.epam.esm.service_impl.GiftCertificateServiceImpl;
 import com.epam.esm.util_service.Order;
 import jakarta.validation.Validation;
 import jakarta.validation.ValidationException;
@@ -13,7 +11,6 @@ import jakarta.validation.Validator;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.core.io.Resource;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
@@ -91,11 +88,9 @@ public class GiftCertificateController {
             throw new ValidationException();
         }
 
-        try {
-            gcService.addGiftCertificate(
+        if (!gcService.addGiftCertificate(
                     GiftCertificateDTO.builder().id(req.getId()).name(req.getName()).description(req.getDescription())
-                            .price(req.getPrice()).duration(req.getDuration()).tags(req.getTags()).build());
-        } catch (ResourceAlreadyExists e) {
+                            .price(req.getPrice()).duration(req.getDuration()).tags(req.getTags()).build())) {
             String errorMsg = String.format("Resource already exists (id " + "= %s)", req.getId());
             logger.error(errorMsg);
 
@@ -112,11 +107,9 @@ public class GiftCertificateController {
             throw new ValidationException();
         }
 
-        try {
-            gcService.updateGiftCertificate(
+        if (!gcService.updateGiftCertificate(
                     GiftCertificateDTO.builder().id(req.getId()).name(req.getName()).description(req.getDescription())
-                            .price(req.getPrice()).duration(req.getDuration()).tags(req.getTags()).build());
-        } catch (ResourceAlreadyExists e) {
+                            .price(req.getPrice()).duration(req.getDuration()).tags(req.getTags()).build())) {
             String errorMsg = String.format("Resource not found (id = %s)", req.getId());
             logger.error(errorMsg);
 

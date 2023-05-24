@@ -1,27 +1,20 @@
 package service_test;
 
-import com.epam.esm.config.datasource.DataSourceConfig;
 import com.epam.esm.dto.GiftCertificateDTO;
 import com.epam.esm.entity.GiftCertificate;
 import com.epam.esm.entity.Tag;
-import com.epam.esm.exception.ResourceAlreadyExists;
 import com.epam.esm.repository.GiftCertificateRepository;
 import com.epam.esm.repository.TagRepository;
-import com.epam.esm.repository_impl.GiftCertificateRepositoryImpl;
-import com.epam.esm.repository_impl.TagRepositoryImpl;
 import com.epam.esm.service_impl.GiftCertificateServiceImpl;
 import com.epam.esm.util_service.DTOUtil;
-import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.Mockito;
-import org.mockito.MockitoAnnotations;
+import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.dao.DataAccessException;
-import org.springframework.test.context.ActiveProfiles;
-import org.springframework.test.context.ContextConfiguration;
-import org.springframework.test.context.junit.jupiter.SpringExtension;
+import org.springframework.jdbc.datasource.DataSourceTransactionManager;
 
 import java.time.LocalDateTime;
 import java.time.temporal.ChronoUnit;
@@ -30,10 +23,7 @@ import java.util.Optional;
 
 import static org.junit.jupiter.api.Assertions.*;
 
-@ExtendWith(SpringExtension.class)
-@ContextConfiguration(classes = {GiftCertificateServiceImpl.class, GiftCertificateRepositoryImpl.class,
-        TagRepositoryImpl.class, DataSourceConfig.class})
-@ActiveProfiles("dev")
+@ExtendWith(MockitoExtension.class)
 public class GiftCertificateServiceTest extends Mockito {
 
     @InjectMocks
@@ -43,6 +33,8 @@ public class GiftCertificateServiceTest extends Mockito {
     private GiftCertificateRepository gcRepository;
     @Mock
     private TagRepository             tagRepository;
+    @Mock
+    private DataSourceTransactionManager transactionManager;
 
     public GiftCertificate gc1;
     public GiftCertificate gc2;
@@ -53,12 +45,7 @@ public class GiftCertificateServiceTest extends Mockito {
     private Tag tag1;
     private Tag tag2;
 
-
-    @BeforeEach
-    public void init() {
-
-        MockitoAnnotations.openMocks(this);
-
+    {
         tag1 = new Tag(1L, "1");
         tag2 = new Tag(2L, "2");
 
@@ -75,15 +62,18 @@ public class GiftCertificateServiceTest extends Mockito {
     public void testAddGiftCertificate() {
 
         doNothing().when(gcRepository).insertEntity(any());
+        doNothing().when(transactionManager).commit(any());
 
-        assertDoesNotThrow(() -> gcService.addGiftCertificate(gc1DTO));
+        assertTrue(gcService.addGiftCertificate(gc1DTO));
         verify(gcRepository).insertEntity(any());
+        verify(transactionManager).commit(any());
 
-        doThrow(new DataAccessException("") {
-        }).when(gcRepository).insertEntity(any());
+        doThrow(new DataAccessException("") {}).when(gcRepository).insertEntity(any());
+        doNothing().when(transactionManager).rollback(any());
 
-        assertThrows(ResourceAlreadyExists.class, () -> gcService.addGiftCertificate(gc2DTO));
+        assertFalse(gcService.addGiftCertificate(gc2DTO));
         verify(gcRepository, times(2)).insertEntity(any());
+        verify(transactionManager).rollback(any());
     }
 
     @Test
@@ -105,14 +95,18 @@ public class GiftCertificateServiceTest extends Mockito {
     public void testUpdateGiftCertificate() {
 
         when(gcRepository.getEntity(gc1.getId())).thenReturn(Optional.of(gc1));
+        doNothing().when(transactionManager).commit(any());
 
-        assertDoesNotThrow(() -> gcService.updateGiftCertificate(gc1DTO));
+        assertTrue(gcService.updateGiftCertificate(gc1DTO));
         verify(gcRepository).getEntity(gc1.getId());
+        verify(transactionManager).commit(any());
 
         when(gcRepository.getEntity(gc2.getId())).thenReturn(Optional.empty());
+        doNothing().when(transactionManager).rollback(any());
 
-        assertThrows(ResourceAlreadyExists.class, () -> gcService.updateGiftCertificate(gc2DTO));
+        assertFalse(gcService.updateGiftCertificate(gc2DTO));
         verify(gcRepository).getEntity(gc2.getId());
+        verify(transactionManager).rollback(any());
     }
 
     @Test

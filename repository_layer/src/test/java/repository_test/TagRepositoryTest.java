@@ -34,14 +34,15 @@ import static org.junit.jupiter.api.Assertions.*;
 public class TagRepositoryTest {
 
     private final TagRepository tagRepository;
-    private final JdbcTemplate  jdbcTemplate;
+
+    private final JdbcTemplate jdbcTemplate;
 
     @Autowired
-    public TagRepositoryTest(DataSource dataSource, TagRepository tagRepository) {
+    public TagRepositoryTest(TagRepository tagRepository, JdbcTemplate jdbcTemplate) {
 
         this.tagRepository = tagRepository;
 
-        jdbcTemplate = new JdbcTemplate(dataSource);
+        this.jdbcTemplate = jdbcTemplate;
     }
 
     @BeforeEach

@@ -27,9 +27,9 @@ public class TagRepositoryImpl implements TagRepository {
     private final JdbcTemplate jdbcTemplate;
 
     @Autowired
-    public TagRepositoryImpl(DataSource dataSource) {
+    public TagRepositoryImpl(JdbcTemplate jdbcTemplate) {
 
-        jdbcTemplate = new JdbcTemplate(dataSource);
+        this.jdbcTemplate = jdbcTemplate;
     }
 
     @Override

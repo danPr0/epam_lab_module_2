@@ -13,7 +13,7 @@ public class WebInit implements WebApplicationInitializer {
 
     @Override
     public void onStartup(ServletContext sc) {
-
+        System.out.println("SDKFJSDKLFJLSDKFJSDFJKLSDJFL");
         AnnotationConfigWebApplicationContext root = new AnnotationConfigWebApplicationContext();
 
         root.scan("com.epam.esm");

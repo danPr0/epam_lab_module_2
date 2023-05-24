@@ -24,7 +24,7 @@ public class AddGcRequest {
     @NotNull
     private String  name;
     @NotNull
-    public  String  description;
+    private String  description;
     @NotNull
     private Double  price;
     @NotNull

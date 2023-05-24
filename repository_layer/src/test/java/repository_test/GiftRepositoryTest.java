@@ -44,12 +44,12 @@ public class GiftRepositoryTest {
 
     @Autowired
     public GiftRepositoryTest(
-            GiftCertificateRepository gcRepository, TagRepository tagRepository, DataSource dataSource) {
+            GiftCertificateRepository gcRepository, TagRepository tagRepository, JdbcTemplate jdbcTemplate) {
 
         this.gcRepository  = gcRepository;
         this.tagRepository = tagRepository;
 
-        jdbcTemplate = new JdbcTemplate(dataSource);
+        this.jdbcTemplate = jdbcTemplate;
     }
 
     @BeforeEach
@@ -80,7 +80,6 @@ public class GiftRepositoryTest {
     }
 
     @Test
-    @Transactional
     public void testInsert() {
 
         gcRepository.insertEntity(gc3Spare);
@@ -93,7 +92,6 @@ public class GiftRepositoryTest {
     }
 
     @Test
-    @Transactional
     public void testUpdate() {
 
         long            spareId    = gc3Spare.getId();
@@ -108,7 +106,6 @@ public class GiftRepositoryTest {
     }
 
     @Test
-    @Transactional
     public void testDelete() {
 
         assertEquals(1, gcRepository.deleteEntity(gc2.getId()));
@@ -121,8 +118,9 @@ public class GiftRepositoryTest {
     @Test
     public void testGetAllByTag() {
 
-        List<GiftCertificate> giftCertificates = gcRepository.getAll(Optional.of(tag1.getName()), Optional.empty(),
-                Optional.empty(), Optional.empty(), Optional.empty());
+        List<GiftCertificate> giftCertificates =
+                gcRepository.getAll(Optional.of(tag1.getName()), Optional.empty(), Optional.empty(), Optional.empty(),
+                        Optional.empty());
 
         assertArrayEquals(new GiftCertificate[]{gc1, gc11},
                 giftCertificates.stream().sorted(Comparator.comparing(GiftCertificate::getId)).toArray());
@@ -193,7 +191,6 @@ public class GiftRepositoryTest {
     }
 
     @Test
-    @Transactional
     public void testAddTagToEntity() {
 
         gcRepository.addTagToEntity(gc1.getId(), tag2.getId());
@@ -211,7 +208,6 @@ public class GiftRepositoryTest {
     }
 
     @Test
-    @Transactional
     public void testDeleteAllTagsForEntity() {
 
         assertEquals(tagRepository.getAllByGiftCertificate(gc1.getId()).size(),

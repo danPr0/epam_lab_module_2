@@ -1,7 +1,6 @@
 package com.epam.esm.service;
 
 import com.epam.esm.dto.GiftCertificateDTO;
-import com.epam.esm.exception.ResourceAlreadyExists;
 import com.epam.esm.util_service.Order;
 
 import java.util.List;
@@ -15,11 +14,11 @@ import java.util.Optional;
 
 public interface GiftCertificateService {
 
-    void addGiftCertificate(GiftCertificateDTO gc) throws ResourceAlreadyExists;
+    boolean addGiftCertificate(GiftCertificateDTO gc);
 
     Optional<GiftCertificateDTO> getGiftCertificate(long id);
 
-    void updateGiftCertificate(GiftCertificateDTO gc) throws ResourceAlreadyExists;
+    boolean updateGiftCertificate(GiftCertificateDTO gc);
 
     boolean deleteGiftCertificate(long id);
 
