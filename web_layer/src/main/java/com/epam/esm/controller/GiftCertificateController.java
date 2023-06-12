@@ -5,9 +5,7 @@ import com.epam.esm.rest.AddGcRequest;
 import com.epam.esm.rest.UpdateGcRequest;
 import com.epam.esm.service.GiftCertificateService;
 import com.epam.esm.util_service.Order;
-import jakarta.validation.Validation;
-import jakarta.validation.ValidationException;
-import jakarta.validation.Validator;
+import jakarta.validation.Valid;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -31,7 +29,6 @@ public class GiftCertificateController {
     private final GiftCertificateService gcService;
 
     private final String    resourceCode = "01";
-    private final Validator validator    = Validation.buildDefaultValidatorFactory().getValidator();
     private final Logger    logger       = LogManager.getLogger(GiftCertificateController.class);
 
     @Autowired
@@ -82,11 +79,7 @@ public class GiftCertificateController {
     }
 
     @PostMapping
-    public ResponseEntity<Object> addGiftCertificate(@RequestBody AddGcRequest req) {
-
-        if (validator.validate(req).size() > 0) {
-            throw new ValidationException();
-        }
+    public ResponseEntity<Object> addGiftCertificate(@Valid @RequestBody AddGcRequest req) {
 
         if (!gcService.addGiftCertificate(
                     GiftCertificateDTO.builder().id(req.getId()).name(req.getName()).description(req.getDescription())
@@ -101,11 +94,7 @@ public class GiftCertificateController {
     }
 
     @PutMapping()
-    public ResponseEntity<Object> updateGiftCertificate(@RequestBody UpdateGcRequest req) {
-
-        if (validator.validate(req).size() > 0) {
-            throw new ValidationException();
-        }
+    public ResponseEntity<Object> updateGiftCertificate(@Valid @RequestBody UpdateGcRequest req) {
 
         if (!gcService.updateGiftCertificate(
                     GiftCertificateDTO.builder().id(req.getId()).name(req.getName()).description(req.getDescription())

@@ -12,7 +12,7 @@ import org.springframework.web.servlet.config.annotation.EnableWebMvc;
 public class AppLauncher {
 
     public static void main(String[] ars) throws Exception {
-        System.out.println(SpringVersion.getVersion());
-//        EmbeddedTomcat.start();
+//        System.out.println(SpringVersion.getVersion());
+        EmbeddedTomcat.start();
     }
 }

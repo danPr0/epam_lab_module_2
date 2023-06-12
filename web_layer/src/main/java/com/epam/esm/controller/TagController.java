@@ -3,9 +3,7 @@ package com.epam.esm.controller;
 import com.epam.esm.dto.TagDTO;
 import com.epam.esm.rest.AddTagRequest;
 import com.epam.esm.service.TagService;
-import jakarta.validation.Validation;
-import jakarta.validation.ValidationException;
-import jakarta.validation.Validator;
+import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -18,13 +16,12 @@ import java.util.Map;
  * @author Danylo Proshyn
  */
 
-@RestController()
+@RestController
 @RequestMapping("/tags")
 public class TagController {
 
     private final TagService tagService;
 
-    private final Validator validator    = Validation.buildDefaultValidatorFactory().getValidator();
     private final String    resourceCode = "02";
 
     @Autowired
@@ -43,11 +40,7 @@ public class TagController {
     }
 
     @PostMapping()
-    public ResponseEntity<Object> addTag(@RequestBody AddTagRequest req) {
-
-        if (validator.validate(req).size() > 0) {
-            throw new ValidationException();
-        }
+    public ResponseEntity<Object> addTag(@Valid @RequestBody AddTagRequest req) {
 
         if (tagService.addTag(TagDTO.builder().id(req.getId()).name(req.getName()).build())) {
             return ResponseEntity.status(201).build();

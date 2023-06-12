@@ -1,10 +1,12 @@
 package com.epam.esm.controller;
 
 
-import jakarta.validation.ValidationException;
+import jakarta.validation.ConstraintViolationException;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.MethodArgumentNotValidException;
+import org.springframework.web.bind.MissingServletRequestParameterException;
 import org.springframework.web.bind.annotation.ControllerAdvice;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 
@@ -21,8 +23,9 @@ public class ExceptionController {
 
     private final Logger logger = LogManager.getLogger(ExceptionController.class);
 
-    @ExceptionHandler(value = {ValidationException.class})
-    public ResponseEntity<?> invalidRequest(ValidationException ex) {
+    @ExceptionHandler(value = {MethodArgumentNotValidException.class, MissingServletRequestParameterException.class,
+            ConstraintViolationException.class})
+    public ResponseEntity<?> invalidRequest(Exception ex) {
 
         logger.error(ex);
 
