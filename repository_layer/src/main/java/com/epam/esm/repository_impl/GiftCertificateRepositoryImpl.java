@@ -2,6 +2,11 @@ package com.epam.esm.repository_impl;
 
 import com.epam.esm.entity.GiftCertificate;
 import com.epam.esm.repository.GiftCertificateRepository;
+import org.jooq.Record;
+import org.jooq.SelectConditionStep;
+import org.jooq.SortField;
+import org.jooq.SortOrder;
+import org.jooq.conf.ParamType;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.dao.DataAccessException;
 import org.springframework.jdbc.core.JdbcTemplate;
@@ -14,10 +19,12 @@ import org.springframework.stereotype.Repository;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.time.LocalDateTime;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 
 import static com.epam.esm.util_repository.DbFields.*;
+import static org.jooq.impl.DSL.*;
 
 /**
  * Implementation of DAO Interface {@link com.epam.esm.repository.GiftCertificateRepository}.
@@ -65,7 +72,8 @@ public class GiftCertificateRepositoryImpl implements GiftCertificateRepository 
         SqlParameterSource namedParameters = new BeanPropertySqlParameterSource(gc);
 
         return namedParamJdbcTemplate.update("update gift_certificates set name = :name, description = :description," +
-                        "price = :price, duration = :duration, create_date = :createDate, last_update_date = :lastUpdateDate where id = :id",
+                        "price = :price, duration = :duration, created_date = :createDate, last_modified_date = " +
+                        ":lastUpdateDate where id = :id",
                 namedParameters);
     }
 
@@ -80,31 +88,31 @@ public class GiftCertificateRepositoryImpl implements GiftCertificateRepository 
             Optional<String> tagName, Optional<String> namePart, Optional<String> descriptionPart,
             Optional<String> nameOrder, Optional<String> createDateOrder) {
 
-        String conditionClause = "where current_date() < timestampadd(day, duration, create_date)";
+        SelectConditionStep<Record> query = select().from(table("gift_certificates"))
+                .where("current_date() < timestampadd(day, duration, created_date)");
         if (tagName.isPresent()) {
-            conditionClause += String.format(" and id in (select gc_id from gift_certificates_tags where tag_id in " +
-                    "(select id from tags where name = '%s'))", tagName.get());
+            query = query.andExists(select(field("gc_id")).from(table("gift_certificates_tags")).leftJoin(table("tags"))
+                    .on(field("tag_id").eq(field("tags.id"))).where(field("gift_certificates.id").eq(field("gc_id")))
+                    .and(field("tags.name").eq(tagName.get())));
         }
+
         if (namePart.isPresent()) {
-            conditionClause += String.format(" and lower(name) like '%s'", '%' + namePart.get().toLowerCase() + '%');
+            query = query.and(lower(field("name", String.class)).like('%' + namePart.get().toLowerCase() + '%'));
         }
         if (descriptionPart.isPresent()) {
-            conditionClause +=
-                    String.format(" and lower(description) like '%s'", '%' + descriptionPart.get().toLowerCase() + '%');
+            query = query.and(
+                    lower(field("description", String.class)).like('%' + descriptionPart.get().toLowerCase() + '%'));
         }
 
-        String orderClause = "";
-        if (nameOrder.isPresent()) {
-            orderClause = " order by name " + nameOrder.get();
-            if (createDateOrder.isPresent()) {
-                orderClause += ", create_date " + createDateOrder.get();
-            }
-        } else if (createDateOrder.isPresent()) {
-            orderClause = " order by create_date " + createDateOrder.get();
-        }
+        List<SortField<Object>> sortFieldList = new ArrayList<>();
+        nameOrder.ifPresent(s -> sortFieldList.add(field("name").sort(SortOrder.valueOf(s.toUpperCase()))));
+        createDateOrder.ifPresent(
+                s -> sortFieldList.add(field("created_date").sort(SortOrder.valueOf(s.toUpperCase()))));
+        sortFieldList.add(field("id").sort(SortOrder.ASC));
 
-        return jdbcTemplate.query("select * from gift_certificates " + conditionClause + orderClause,
-                new GiftCertificateRowMapper());
+        String sql = query.orderBy(sortFieldList).getSQL(ParamType.INLINED);
+
+        return jdbcTemplate.query(sql, new GiftCertificateRowMapper());
     }
 
     @Override
@@ -127,8 +135,8 @@ public class GiftCertificateRepositoryImpl implements GiftCertificateRepository 
             return GiftCertificate.builder().id(rs.getLong(GIFT_CERTIFICATE_ID))
                     .name(rs.getString(GIFT_CERTIFICATE_NAME)).description(rs.getString(GIFT_CERTIFICATE_DESCRIPTION))
                     .price(rs.getDouble(GIFT_CERTIFICATE_PRICE)).duration(rs.getInt(GIFT_CERTIFICATE_DURATION))
-                    .createDate(rs.getObject(GIFT_CERTIFICATE_CREATE_DATE, LocalDateTime.class))
-                    .lastUpdateDate(rs.getObject(GIFT_CERTIFICATE_LAST_UPDATE_DATE, LocalDateTime.class)).build();
+                    .createDate(rs.getObject(GIFT_CERTIFICATE_CREATED_DATE, LocalDateTime.class))
+                    .lastUpdateDate(rs.getObject(GIFT_CERTIFICATE_LAST_MODIFIED_DATE, LocalDateTime.class)).build();
         }
     }
 }

@@ -38,8 +38,8 @@ public class DbTestUtil {
                     description      varchar(255) not null,
                     price            double       not null,
                     duration         int          not null,
-                    create_date      datetime     not null,
-                    last_update_date datetime     not null
+                    created_date      datetime     not null,
+                    last_modified_date datetime     not null
                 )""");
         jdbcTemplate.execute("""
                 create table tags

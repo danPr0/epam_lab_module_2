@@ -26,6 +26,6 @@ public class WebInit implements WebApplicationInitializer {
         appServlet.addMapping("/");
 
         //Profile set-up
-        sc.setInitParameter("spring.profiles.active", "prod");
+        sc.setInitParameter("spring.profiles.active", "dev");
     }
 }

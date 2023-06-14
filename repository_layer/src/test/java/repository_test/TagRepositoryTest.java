@@ -30,7 +30,7 @@ import static org.junit.jupiter.api.Assertions.*;
 
 @ExtendWith(SpringExtension.class)
 @ContextConfiguration(classes = {DataSourceConfig.class, TagRepositoryImpl.class})
-@ActiveProfiles("dev")
+@ActiveProfiles("test")
 public class TagRepositoryTest {
 
     private final TagRepository tagRepository;

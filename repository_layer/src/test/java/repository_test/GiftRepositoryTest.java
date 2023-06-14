@@ -34,7 +34,7 @@ import static repository_test.util.DbTestUtil.*;
 
 @ExtendWith(SpringExtension.class)
 @ContextConfiguration(classes = {GiftCertificateRepositoryImpl.class, TagRepositoryImpl.class, DataSourceConfig.class})
-@ActiveProfiles("dev")
+@ActiveProfiles("test")
 public class GiftRepositoryTest {
 
     private final GiftCertificateRepository gcRepository;
